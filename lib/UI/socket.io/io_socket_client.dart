@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketIO extends StatefulWidget{
@@ -16,18 +17,21 @@ class _SocketIoState extends State<SocketIO>{
   void initState() {
 
     super.initState();
-    connect();
+    initializeSocket();
 
   }
 
-  void connect(){
-    socket=IO.io("http://10.10.20.228:5000",<String,dynamic>{
-      "transports":["websocket"],
-      "autoConnect":false,
+  /*void connect(){
+    socket=IO.io("http://localhost:3000",<String,dynamic>{
+      "transports":["websockets"],
+     "autoConnect":false,
     });
     socket!.connect();
+    print(socket!.connected);
     socket!.onConnect((data)=>print("Connected"));
-  }
+
+    socket!.emit('/test',"Helloworld");
+  }*/
 
   @override
   void dispose() {
@@ -36,35 +40,29 @@ class _SocketIoState extends State<SocketIO>{
   }
 
 
-  // void initializeSocket(){
-  // socket=io("http://127.0.0.1:3000",<String,dynamic>{
-  //   "trsnsports":["websocket"],
-  //   "autoConnect":false,
-  // });
-  // socket!.connect();
-  // socket!.on('connect', (data){
-  //   print(socket!.connected);
-  // });
-  // socket!.on('message', (data){
-  //   print(data);
-  // });
-  // socket!.on('disconnect', (data) {
-  //   print('disconnect');
-  // });
-  //
-  // }
+  void initializeSocket(){
+  socket=IO.io("http://172.31.16.1:3000",<String,dynamic>{
+    "transports":["websockets"],
+    "autoConnect":false,
+  });
+  socket!.connect();
+  socket!.onConnect((data)=>print("Connected"));
+  print(socket!.connected);
 
-  // sendMessage(String message){
-  //   socket!.emit("message",
-  //   {
-  //     "id":socket!.id,
-  //     "message":message,
-  //     "username":'vivek',
-  //     "sentAt":DateTime.now().toLocal().toString()
-  //   }
-  //   );
-  // }
 
+  }
+
+  sendMessage(String message){
+    socket!.emit("message",
+    {
+      "id":socket!.id,
+      "message":message,
+      "username":'vivek',
+      "sentAt":DateTime.now().toLocal().toString()
+    }
+    );
+  }
+  var message;
 
   @override
   Widget build(BuildContext context) {
@@ -75,13 +73,29 @@ class _SocketIoState extends State<SocketIO>{
         title: const Text('SocketIO'),
 
       ),
-      body: InkWell(
+      body:SizedBox(
+        height: 40,
+        child: Column(
 
-              onTap: (){
-         connect();
-      },
-      child: const Text('SocketIO'
-          ),),
+          children: [
+            TextField(
+              onChanged:(value){
+                setState(() {
+                  message=value;
+                });
+              } ,
+            ),
+            InkWell(
+              onTap: (sendMessage(message??'')),
+              child: const Icon(Icons.send,
+              color: Colors.blue,),
+            )
+          ],
+        ),
+      )
+
+          
+    
     );
   }
 
